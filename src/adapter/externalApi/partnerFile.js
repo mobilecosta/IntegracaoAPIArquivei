@@ -20,18 +20,21 @@ exports.getPartnerFile = async () => {
       const files = res.data.data;
       for (file of files) {
         const accessKey = `{${file['access_key']}}`;
-    
+        
         // Transform xml file to JSON file
-        fs.writeFileSync('./example.xml', (Buffer.from(file.xml, 'base64')));
+        fs.writeFileSync('./assets/example.xml', (Buffer.from(file.xml, 'base64')));
 
-        fs.readFile('./example.xml', async (err, data) => {
+        fs.readFile('./assets/example.xml', async (err, data) => {
           const file = JSON.parse(parser.toJson(data, {reversible: true}));
           const value = parseFloat(file.nfeProc.NFe.infNFe.pag.detPag.vPag['$t']);
 
           // Send to save on DB
-          const response = await fileData.saveFile(accessKey, value);
-          if (response || err) {
-            return response;
+          let response = await fileData.getFile(accessKey);
+          if (!response) {
+            response = await fileData.saveFile(accessKey, value);
+            if (response || err) {
+              return response;
+            }
           }
         });
       };
