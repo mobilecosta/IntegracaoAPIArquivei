@@ -14,6 +14,7 @@ exports.getPartnerFile = async () => {
                                'X-Api-Key': process.env.PARTNER_API_KEY
                               }
                             };
+							
   await axios.get(process.env.PARTNER_URL, options)
     .then((res) => {
       // Receive api data
@@ -26,12 +27,12 @@ exports.getPartnerFile = async () => {
 
         fs.readFile('./assets/example.xml', async (err, data) => {
           const file = JSON.parse(parser.toJson(data, {reversible: true}));
-          const value = parseFloat(file.nfeProc.NFe.infNFe.pag.detPag.vPag['$t']);
+          const value = file.nfeProc.NFe.infNFe.Id;
 
           // Send to save on DB
           let response = await fileData.getFile(accessKey);
           if (!response) {
-            response = await fileData.saveFile(accessKey, value);
+            response = await fileData.saveFile(value, '');
             if (response || err) {
               return response;
             }
